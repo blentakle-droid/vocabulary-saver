@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Search Vocabulary</title>
+  <style>
+    body {
+      background-color:#c9c4fc;
+      font-family:sans-serif;
+    }
+    #container {
+      background-color:white;
+      border-radius:3%;
+    }
+    #searchInput {
+      width:200px;
+      height:30px;
+      color:#8cb599;
+      background-color:#e5f1ff;
+    }
+  </style>
+</head>
+
+<body>
+<div id="container">
+  <h1>Word dictionary</h1>
+<input id="searchInput" placeholder="Search your words here">
+  <a href="index.html">Or create some vocabulary words</a>
+<div id="results"></div>
+</div>
+<script>
+    // 1. Load saved words from localStorage
+    var wordsArray = JSON.parse(localStorage.getItem("myWords")) || [];
+
+    // 2. Connect to HTML
+    var searchInput = document.getElementById("searchInput");
+    var resultsDiv = document.getElementById("results");
+
+    // 3. Display logic (ONLY shows words)
+    function showWords(list) {
+        resultsDiv.innerHTML = "";
+
+        if (list.length === 0) {
+            resultsDiv.innerHTML = "<p>Sorry, no matches found</p>";
+            return;
+        }
+
+        for (var i = 0; i < list.length; i++) {
+            var wordObj = list[i];
+
+            var div = document.createElement("div");
+            div.className = "word";
+
+            div.innerHTML =
+                "<strong>Word:</strong> " + wordObj.word + "<br>" +
+                "<strong>Synonyms:</strong> " + wordObj.synonyms + "<br>" +
+                "<strong>Meaning:</strong> " + wordObj.meaning + "<br>" +
+                "<strong>Example:</strong> " + wordObj.example;
+
+            resultsDiv.appendChild(div);
+        }
+    }
+
+    // 4. Search logic (decides WHAT to show)
+    function searchWords() {
+        var searchTerm = searchInput.value.toLowerCase();
+
+        var filteredWords = wordsArray.filter(function(wordObj) {
+           return (
+    (wordObj.word || "").toLowerCase().includes(searchTerm) ||
+    (wordObj.synonyms || "").toLowerCase().includes(searchTerm) ||
+    (wordObj.meaning || "").toLowerCase().includes(searchTerm) ||
+    (wordObj.example || "").toLowerCase().includes(searchTerm)
+);
+
+        showWords(filteredWords);
+    }
+
+    // 5. Connect typing → searching
+    searchInput.addEventListener("input", searchWords);
+
+    // 6. Show all words on page load
+    showWords(wordsArray);
+</script>
+
+</body>
+</html>
