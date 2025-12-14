@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Vocabulary saver</title>
+    <style>
+        body {
+            background-color: #deb2e1;
+            font-family: sans-serif, serif;
+        }
+        #container {
+            background-color: white;
+            border-radius: 3%;
+        }
+        button {
+            width: 100px;
+            height: 50px;
+            background-color: #83b698;
+            color: white;
+        }
+        #saveButton {
+            width: 75px;
+            height: 25px;
+            background-color: #83b698;
+            color: white;
+        }
+        #deleteBtn {
+            width: 75px;
+            height: 35px;
+            background-color: #83b698;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+<div id="container">
+    <h1>Blen's vocabulary word saver</h1>
+    <button id="add-word-btn">Add word</button>
+    <a href="dictionary.html">When you added some words, search them up here</a>
+    <h2>Saved vocabulary words</h2>
+    <div id="saved-vocab-words"></div>
+</div>
+
+<script>
+    var addWord = document.getElementById("add-word-btn");
+    var savedWordsDiv = document.getElementById("saved-vocab-words");
+    var containerDiv = document.getElementById("container");
+
+    // Show all saved words
+    function showSavedWords() {
+        var wordsArray = JSON.parse(localStorage.getItem("myWords")) || [];
+        savedWordsDiv.innerHTML = "";
+
+        for (var i = 0; i < wordsArray.length; i++) {
+            var wordObj = wordsArray[i];
+
+            var wordP = document.createElement("p");
+            wordP.innerHTML =
+                "Word: " + wordObj.word + "<br>" +
+                "Synonyms: " + wordObj.synonyms + "<br>" +
+                "Meaning: " + wordObj.meaning + "<br>" +
+                "Example: " + wordObj.example;
+
+            savedWordsDiv.appendChild(wordP);
+
+            // Create delete button
+            var deleteBtn = document.createElement("button");
+            deleteBtn.innerHTML = "Delete word";
+            deleteBtn.id = "deleteBtn";
+
+            // Delete logic (closure keeps correct index)
+            deleteBtn.addEventListener("click", (function(index) {
+                return function () {
+                    wordsArray.splice(index, 1);
+                    localStorage.setItem("myWords", JSON.stringify(wordsArray));
+                    showSavedWords();
+                };
+            })(i));
+
+            // ✅ MISSING LINE (now fixed)
+            savedWordsDiv.appendChild(deleteBtn);
+        }
+    }
+
+    // Create input fields
+    var onAddWordClick = function () {
+        var wordInput = document.createElement("input");
+        var synonymsInput = document.createElement("input");
+        var meaningInput = document.createElement("input");
+        var exampleSentenceInput = document.createElement("input");
+        var saveButton = document.createElement("button");
+
+        wordInput.placeholder = "word";
+        synonymsInput.placeholder = "synonym(s)";
+        meaningInput.placeholder = "meaning";
+        exampleSentenceInput.placeholder = "example sentence";
+        saveButton.innerHTML = "save";
+        saveButton.id = "saveButton";
+
+        saveButton.addEventListener("click", function () {
+            var wordObj = {
+                word: wordInput.value,
+                synonyms: synonymsInput.value,
+                meaning: meaningInput.value,
+                example: exampleSentenceInput.value
+            };
+
+            var wordsArray = JSON.parse(localStorage.getItem("myWords")) || [];
+            wordsArray.push(wordObj);
+            localStorage.setItem("myWords", JSON.stringify(wordsArray));
+
+            showSavedWords();
+
+            wordInput.remove();
+            synonymsInput.remove();
+            meaningInput.remove();
+            exampleSentenceInput.remove();
+            saveButton.remove();
+        });
+
+        containerDiv.appendChild(wordInput);
+        containerDiv.appendChild(synonymsInput);
+        containerDiv.appendChild(meaningInput);
+        containerDiv.appendChild(exampleSentenceInput);
+        containerDiv.appendChild(saveButton);
+    };
+
+    addWord.addEventListener("click", onAddWordClick);
+
+    // Load saved words on page load
+    showSavedWords();
+</script>
+</body>
+</html>
